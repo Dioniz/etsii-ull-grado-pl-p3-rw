@@ -1,65 +1,45 @@
 "use strict"; // Use ECMAScript 5 strict mode in browsers that support it
 
 $(document).ready(function() {
-   $("button").click(function() {
-     calculate();
-   });
- });
+   $("#fileinput").change(calculate);
+});
 
-function calculate() {
-  var result;
-  var original       = document.getElementById("original");
-  var temp = original.value;
-  var regexp = /_____________________________________________/g;
-  var lines = temp.split(/\n+\s*/);
-  var commonLength = NaN;
-  var r = [];
-  // Template using underscore
-  var row = "<% _.each(items, function(name) { %>"     +
-            "                    <td><%= name %></td>" +
-            "              <% }); %>";
+function generateOutput(contents) {
+  return contents.replace(/\b([a-z_A-Z]\w*)(\s+)\1\b/ig,'$1$2');
+}//sustituir las palabras repetidas(RegExp/opciones, reemplazo)
 
-  if (window.localStorage) localStorage.original  = temp;
-  
-  for(var t in lines) {
-    var temp = lines[t];
-    var m = temp.match(regexp);
-    var result = [];
-    var error = false;
-    
-    if (m) {
-      if (commonLength && (commonLength != m.length)) {
-        //alert('ERROR! row <'+temp+'> has '+m.length+' items!');
-        error = true;
-      }
-      else {
-        commonLength = m.length;
-        error = false;
-      }
-      for(var i in m) {
-        var removecomma = m[i].replace(/,\s*$/,'');
-        var remove1stquote = removecomma.replace(/^\s*"/,'');
-        var removelastquote = remove1stquote.replace(/"\s*$/,'');
-        var removeescapedquotes = removelastquote.replace(/\\"/,'"');
-        result.push(removeescapedquotes);
-      }
-      var tr = error? '<tr class="error">' : '<tr>';
-      r.push(tr+_.template(row, {items : result})+"</tr>");
+function calculate(evt) {
+  var f = evt.target.files[0]; // se guarda en f, los ficheros seleccionados por el evento, en este caso solo hay 1, por ello lo del: [0]
+  var contents = ''; //vamos a guardar aqui el contenido del fichero
+
+  if (f) {
+    var r = new FileReader();
+    r.onload = function(e) { //Evento de carga del fichero(onload)
+      contents = e.target.result;//contenido del fichero
+      var escaped  = escapeHtml(contents);//trata los elementos especiales <tag> del fichero
+      var outdiv = document.getElementById("out");
+      outdiv.className = 'unhidden';//Cambia el nombre de la clase en html
+      finaloutput.innerHTML = generateOutput(escaped);
+      initialinput.innerHTML = escaped;
+
     }
-    else {
-      alert('ERROR! row '+temp+' does not look as legal CSV');
-      error = true;
-    }
+    r.readAsText(f);//momento en el que se lee el fichero (Se ejecuta esto antes que el evento onload)[Primero se lee el fichero y luego se produce el evento de carga] Pero hay que definir antes el evento onload, para la siguiente leida de fichero.
+  } else { 
+    alert("Failed to load file");
   }
-  r.unshift('<p>\n<table class="center" id="result">');
-  r.push('</table>');
-  //alert(r.join('\n')); // debug
-  finaltable.innerHTML = r.join('\n');
 }
 
-window.onload = function() {
-  // If the browser supports localStorage and we have some stored data
-  if (window.localStorage && localStorage.original) {
-    document.getElementById("original").value = localStorage.original;
-  }
-};
+var entityMap = {
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': '&quot;',
+    "'": '&#39;',
+    "/": '&#x2F;'
+  };
+
+function escapeHtml(string) {
+  return String(string).replace(/[&<>""''\/]/g, function (s) {
+    return entityMap[s];
+  });//sustituir los elementos de entityMap por los de la derecha
+}

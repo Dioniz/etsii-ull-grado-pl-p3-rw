@@ -1,25 +1,29 @@
 <html>
   <head>
      <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-     <title>CSV Analyzer</title>
+     <title>File Input</title>
      <link href="global.css" rel="stylesheet" type="text/css">
 
      <script type="text/javascript" src="../../lib/underscore.js"></script>
      <script type="text/javascript" src="../../lib/jquery.js"></script>
-     <script type="text/javascript" src="csv.js"></script>
+     <script type="text/javascript" src="repeated_words.js"></script>
   </head>
   <body>
-    <h1>Comma Separated Value Analyzer</h1>
-    <div>
-      <i>Write a CSV string. Click the table button. The program outputs a table with the specified data.</i>
-    </div>
+    <h1>File Input</h1>
+    <input type="file" id="fileinput" />
+    <div id="out" class="hidden">
     <table>
+      <tr><th>Original</th><th>Transformed</th></tr>
       <tr>
-        <th>CSV string:</th> <!-- autofocus attribute is HTML5 -->
-        <td><textarea autofocus cols = "80" rows = "5" id="original"></textarea></td> 
+        <td>
+          <pre class="input" id="initialinput"></pre>
+        </td>
+        <td>
+          <pre class="output" id="finaloutput"></pre>
+        </td>
       </tr>
     </table>
-    <button type="button">table:</button><br>
-    <span class="output" id="finaltable"></span>
+    </div>
   </body>
 </html>
+
