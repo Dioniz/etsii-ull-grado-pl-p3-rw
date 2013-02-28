@@ -39,7 +39,7 @@ var entityMap = {
   };
 
 function escapeHtml(string) {
-  return String(string).replace(/[&<>""''\/]/g, function (s) {
+  return String(string).replace(/[&<>"'\/]/g,function (s) {
     return entityMap[s];
   });//sustituir los elementos de entityMap por los de la derecha
 }
